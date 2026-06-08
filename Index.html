@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -304,7 +304,7 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: url('images/제목배경.jpg') center/cover no-repeat;
+  background: url('images/title-background.jpg') center/cover no-repeat;
   border-radius: 18px;
 }
 .t-main { font-family: 'JeongsinCharyeot', sans-serif; font-size: 81px; font-weight: normal; color: #1a1a2e; margin-bottom: 14px; letter-spacing: 0.5px; line-height: 1.2; }
@@ -413,11 +413,11 @@ const SLIDES = [
   <!-- 좌: 이미지 2장 -->
   <div style="flex:0 0 28%;display:flex;flex-direction:column;gap:10px;min-height:0;">
     <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-height:0;">
-      <img src="images/테슬라.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
+      <img src="images/tesla.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
       <div class="cap">Tesla 자율주행</div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-height:0;">
-      <img src="images/무인택시.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
+      <img src="images/autonomous-taxi.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
       <div class="cap">무인택시</div>
     </div>
   </div>
@@ -470,11 +470,11 @@ const SLIDES = [
   <!-- 우: 이미지 2장 -->
   <div style="flex:0 0 28%;display:flex;flex-direction:column;gap:10px;min-height:0;">
     <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-height:0;">
-      <img src="images/수원XR버스%20외부.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
+      <img src="images/suwon-xrbus-exterior.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
       <div class="cap">수원 XR버스 (외부)</div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-height:0;">
-      <img src="images/수원XR버스%20내부.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
+      <img src="images/suwon-xrbus-interior.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:8px;">
       <div class="cap">수원 XR버스 (내부)</div>
     </div>
   </div>
@@ -520,7 +520,7 @@ const SLIDES = [
   <div style="flex:35;display:flex;flex-direction:column;gap:9px;min-height:0;">
     <!-- 우 최상단: 멀미 이미지 (flex:1) -->
     <div style="flex:1;border-radius:10px;overflow:hidden;min-height:0;">
-      <img src="images/멀미.avif" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;">
+      <img src="images/motion-sickness.avif" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;">
     </div>
     <!-- 우 중1: 멀미 유발의 이유 (flex:1.5) -->
     <div class="card" style="flex:1.5;display:flex;flex-direction:column;gap:4px;min-height:0;text-align:center;align-items:center;justify-content:center;">
@@ -593,7 +593,7 @@ const SLIDES = [
         background:#f4f7ff;border:1px solid #c8d4f8;border-radius:8px;padding:10px;">
         <div class="lbl" style="font-size:11.5px;flex-shrink:0;">Apple Vehicle Motion Cues (iOS 17.4)</div>
         <video style="width:100%;height:auto;display:block;border-radius:6px;background:#000;object-fit:contain;"
-          src="images/애플 차량 모션큐.mp4" autoplay muted loop playsinline></video>
+          src="images/apple-vehicle-motion-cues.mp4" autoplay muted loop playsinline></video>
         <div style="flex-shrink:0;margin-top:auto;">
           <p class="sm"><span class="acc">사후 반응형</span> — 차량 이동 감지 후 신호 출력</p>
           <p class="sm">화면 가장자리 점 애니메이션으로 가속·회전 전달</p>
@@ -647,7 +647,7 @@ const SLIDES = [
           <div class="cap">HMD VR</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:3px;min-height:0;">
-          <img src="images/차량모션큐.png" style="flex:1;min-height:0;width:100%;object-fit:contain;border-radius:6px;background:#f4f4f4;">
+          <img src="images/vehicle-motion-cues.png" style="flex:1;min-height:0;width:100%;object-fit:contain;border-radius:6px;background:#f4f4f4;">
           <div class="cap">Apple VMC</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:3px;min-height:0;">
@@ -673,31 +673,31 @@ const SLIDES = [
     <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;">
       <div style="flex:1;display:flex;gap:6px;min-height:0;">
         <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;">
-          <img src="images/VR이미지.avif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:6px;">
+          <img src="images/vr-image.avif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:6px;">
           <div class="cap">XR 공간</div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;">
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
-            <img src="images/빛그림자0.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
-            <img src="images/빛그림자.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/light-shadow0.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/light-shadow.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
           </div>
           <div class="cap">Ambient Light</div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;">
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
-            <img src="images/근경1.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/근경2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/근경3.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/근경4.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/foreground1.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/foreground2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/foreground3.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/foreground4.webp" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
           </div>
           <div class="cap">Foreground</div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;">
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
-            <img src="images/중경1.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/중경2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/중경3.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
-            <img src="images/중경4.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/midground1.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/midground2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/midground3.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
+            <img src="images/midground4.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:3px;display:block;">
           </div>
           <div class="cap">중경 콘텐츠 관람 부</div>
         </div>
@@ -729,7 +729,7 @@ const SLIDES = [
             <span style="color:#fff;font-size:21px;">🗺</span>
           </div>
           <div style="font-size:10px;text-align:center;font-weight:700;color:#1a1a2e;flex-shrink:0;">목적지<br>네비게이션</div>
-          <img src="images/경로입력1.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+          <img src="images/route-input1.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
         </div>
         <div style="display:flex;align-items:center;font-size:14px;color:#3B5BDB;padding:0 3px;flex-shrink:0;padding-bottom:24px;">→</div>
         <!-- 경로 인식 -->
@@ -739,8 +739,8 @@ const SLIDES = [
           </div>
           <div style="font-size:10px;text-align:center;font-weight:700;color:#1a1a2e;flex-shrink:0;">경로<br>인식</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;width:100%;">
-            <img src="images/경로입력2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
-            <img src="images/경로2.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/route-input2.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/route2.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
           </div>
         </div>
         <div style="display:flex;align-items:center;font-size:14px;color:#3B5BDB;padding:0 3px;flex-shrink:0;padding-bottom:24px;">→</div>
@@ -751,8 +751,8 @@ const SLIDES = [
           </div>
           <div style="font-size:10px;text-align:center;font-weight:700;color:#1a1a2e;flex-shrink:0;">움직임<br>선행 학습</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;width:100%;">
-            <img src="images/경로숙지.gif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
-            <img src="images/경로.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/route-learning.gif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/route.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
           </div>
         </div>
         <div style="display:flex;align-items:center;font-size:14px;color:#3B5BDB;padding:0 3px;flex-shrink:0;padding-bottom:24px;">→</div>
@@ -763,8 +763,8 @@ const SLIDES = [
           </div>
           <div style="font-size:10px;text-align:center;font-weight:700;color:#1a1a2e;flex-shrink:0;">시스템<br>작동</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;width:100%;">
-            <img src="images/레이어.gif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
-            <img src="images/시스템작동.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/layer.gif" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
+            <img src="images/system-operation.jpg" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:4px;">
           </div>
         </div>
       </div>
@@ -821,23 +821,23 @@ const SLIDES = [
       <!-- Ambient Light: 빛1(좌) + 빛2(우) -->
       <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
         <div style="flex:1;display:flex;gap:2px;min-height:0;">
-          <img src="images/빛1.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
-          <img src="images/빛2.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/light1.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/light2.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
         </div>
         <div class="cap">Ambient Light</div>
       </div>
       <!-- Foreground: 근경파티클 -->
       <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
-        <img src="images/근경파티클.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:6px;">
+        <img src="images/foreground-particle.png" style="flex:1;min-height:0;width:100%;object-fit:cover;border-radius:6px;">
         <div class="cap">Foreground</div>
       </div>
       <!-- Midground: 중1(좌좌) 중2(좌중) 중3(우중) 중4(우우) -->
       <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;">
         <div style="flex:1;display:flex;gap:2px;min-height:0;">
-          <img src="images/중1.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
-          <img src="images/중2.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
-          <img src="images/중3.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
-          <img src="images/중4.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/mid1.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/mid2.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/mid3.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
+          <img src="images/mid4.png" style="flex:1;min-height:0;width:0;object-fit:cover;border-radius:4px;">
         </div>
         <div class="cap">Midground</div>
       </div>
@@ -917,13 +917,13 @@ const SLIDES = [
   <!-- 왼쪽: 비디오 -->
   <div style="flex:0 0 50%;display:flex;flex-direction:column;gap:7px;">
     <video class="vid" style="flex:1;min-height:0;max-height:calc(100% - 28px);"
-      src="images/빛영상.mp4" controls muted loop playsinline></video>
+      src="images/light-video.mp4" controls muted loop playsinline></video>
     <div class="cap">Ambient Light Layer 구동 영상</div>
   </div>
   <!-- 오른쪽: 3레이어 설명 -->
   <div class="col" style="gap:8px;min-width:0;overflow:hidden;">
     <div class="card" style="flex:1;min-height:0;gap:8px;display:flex;flex-direction:row;overflow:hidden;">
-      <img src="images/빛그림자.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
+      <img src="images/light-shadow.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
       <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
         <div class="lbl" style="color:#3B5BDB;font-size:24px;flex-shrink:0;text-align:center;">Ambient Light Layer</div>
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;">
@@ -933,7 +933,7 @@ const SLIDES = [
       </div>
     </div>
     <div class="card" style="flex:1;min-height:0;gap:8px;display:flex;flex-direction:row;overflow:hidden;">
-      <img src="images/근경2.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
+      <img src="images/foreground2.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
       <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
         <div class="lbl" style="color:#3B5BDB;font-size:24px;flex-shrink:0;text-align:center;">Foreground Layer (주변시야 파티클)</div>
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;">
@@ -945,7 +945,7 @@ const SLIDES = [
       </div>
     </div>
     <div class="card" style="flex:1;min-height:0;gap:8px;display:flex;flex-direction:row;overflow:hidden;">
-      <img src="images/중경3.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
+      <img src="images/midground3.jpg" style="flex:0 0 38%;object-fit:cover;border-radius:4px;min-height:0;min-width:0;">
       <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
         <div class="lbl" style="color:#3B5BDB;font-size:24px;flex-shrink:0;text-align:center;">Midground Layer (콘텐츠 안정화)</div>
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;">
@@ -969,13 +969,13 @@ const SLIDES = [
     <!-- 상단 좌: 영상 1 -->
     <div style="display:flex;flex-direction:column;gap:5px;min-height:0;overflow:hidden;">
       <video class="vid" style="flex:1;min-height:0;"
-        src="images/주행1.mp4" controls muted loop playsinline></video>
+        src="images/driving1.mp4" controls muted loop playsinline></video>
       <div class="cap">주행 시뮬레이션 영상 1</div>
     </div>
     <!-- 상단 중: 영상 2 -->
     <div style="display:flex;flex-direction:column;gap:5px;min-height:0;overflow:hidden;">
       <video class="vid" style="flex:1;min-height:0;"
-        src="images/주행2.mp4" controls muted loop playsinline></video>
+        src="images/driving2.mp4" controls muted loop playsinline></video>
       <div class="cap">주행 시뮬레이션 영상 2</div>
     </div>
     <!-- 우: 시나리오 (상단+하단 스팬) -->
@@ -985,7 +985,7 @@ const SLIDES = [
       <div style="flex:1;display:flex;gap:7px;min-height:0;">
         <!-- 좌: 이미지 -->
         <div style="flex:0 0 45%;min-height:0;overflow:hidden;border-radius:6px;">
-          <img src="images/도로.png" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+          <img src="images/road.png" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
         </div>
         <!-- 우: S1–S7 세로 1×7 -->
         <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;font-size:11px;justify-content:space-evenly;">
