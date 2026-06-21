@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>색상 변환기 — L*a*b* · L*C*h° · sRGB</title>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
+  </script>
   <style>
     :root {
       --bg: #f0f2f5;
@@ -23,49 +26,71 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 20px 16px 40px;
+      padding: 12px 16px 20px;
     }
 
-    .app { max-width: 980px; margin: 0 auto; }
+    .app { max-width: 1400px; margin: 0 auto; }
 
     /* ── Header ── */
-    header { text-align: center; margin-bottom: 24px; }
-    header h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
-    header p  { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+    header { text-align: center; margin-bottom: 10px; }
+    header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; }
+    header p  { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Two-panel layout ── */
+    .layout {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .panel-left  { flex: 0 0 370px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+    .panel-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Shared card style ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+    }
+    .card-head {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .card-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+    .card-sub   { font-size: .68rem; color: var(--muted); opacity: .7; }
 
     /* ── Preview ── */
     .preview-section {
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px 24px;
-      margin-bottom: 16px;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 14px;
       flex-wrap: wrap;
     }
     .swatch {
-      width: 100px; height: 100px;
+      width: 60px; height: 60px;
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.08);
       flex-shrink: 0;
       transition: background-color .12s;
     }
-    .preview-info { flex: 1; min-width: 160px; }
+    .preview-info { flex: 1; min-width: 130px; }
     .hex-big {
-      font-size: 2rem; font-weight: 700;
+      font-size: 1.3rem; font-weight: 700;
       font-family: 'Menlo','Consolas',monospace;
       margin-bottom: 2px;
     }
     .rgb-small {
-      font-size: .82rem; color: var(--muted);
-      font-family: monospace; margin-bottom: 10px;
+      font-size: .74rem; color: var(--muted);
+      font-family: monospace; margin-bottom: 5px;
     }
     .gamut-row {
       display: flex; align-items: center; gap: 6px;
-      font-size: .78rem; font-weight: 500;
-      margin-bottom: 12px;
+      font-size: .72rem; font-weight: 500;
+      margin-bottom: 7px;
     }
     .g-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .g-dot.in  { background: #22c55e; }
@@ -74,31 +99,22 @@
     .g-text.out { color: #dc2626; }
 
     .copy-btn {
-      padding: 7px 14px;
+      padding: 6px 12px;
       background: var(--accent); color: #fff;
       border: none; border-radius: 8px;
-      font-size: .8rem; font-weight: 600; letter-spacing: .02em;
+      font-size: .78rem; font-weight: 600; letter-spacing: .02em;
       cursor: pointer; transition: opacity .15s, background .15s;
     }
     .copy-btn:hover { opacity: .88; }
     .copy-btn.copied { background: #22c55e; }
-
-    /* ab canvas */
-    .canvas-wrap {
-      flex-shrink: 0;
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
-    }
-    #gamutCanvas { border-radius: 8px; border: 1px solid var(--border); display: block; }
-    .canvas-caption { font-size: .68rem; color: var(--muted); }
 
     /* ── Presets ── */
     .presets {
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px 20px;
-      margin-bottom: 16px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 9px 14px;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
     .presets-label { font-size: .75rem; font-weight: 600; color: var(--muted); flex-shrink: 0; }
     .preset-chip {
@@ -114,26 +130,14 @@
     .preset-chip:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
     .preset-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,.1); flex-shrink: 0; }
 
-    /* ── Cards ── */
+    /* ── Calculator cards ── */
     .cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 10px;
     }
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-    }
-    .card-head {
-      display: flex; align-items: baseline; gap: 8px;
-      margin-bottom: 18px;
-    }
-    .card-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
-    .card-sub   { font-size: .68rem; color: var(--muted); opacity: .7; }
 
-    .field { margin-bottom: 15px; }
+    .field { margin-bottom: 10px; }
     .field:last-child { margin-bottom: 0; }
     .field-top {
       display: flex; justify-content: space-between; align-items: center;
@@ -142,7 +146,6 @@
     .field-name { font-size: .88rem; font-weight: 600; }
     .field-desc { font-size: .68rem; color: var(--muted); margin-left: 3px; }
     .field-readout { font-size: .78rem; color: var(--muted); font-family: monospace; }
-
     .field-row { display: flex; align-items: center; gap: 8px; }
 
     /* Slider */
@@ -210,7 +213,6 @@
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      margin-top: 16px;
       overflow: hidden;
     }
     .formula-toggle {
@@ -224,10 +226,7 @@
     .formula-toggle:hover { background: var(--bg); }
     .formula-toggle .toggle-arrow { font-size: .7rem; transition: transform .2s; }
     .formula-toggle.open .toggle-arrow { transform: rotate(180deg); }
-
-    .formula-body {
-      display: none; padding: 0 24px 24px;
-    }
+    .formula-body { display: none; padding: 0 24px 24px; }
     .formula-body.open { display: block; }
 
     .formula-pipeline {
@@ -237,16 +236,9 @@
       font-size: .75rem; font-family: monospace; color: var(--muted);
       font-weight: 600;
     }
-    .pipe-step {
-      color: var(--text); font-weight: 700;
-    }
-    .pipe-arrow {
-      margin: 0 8px; color: var(--accent); font-size: .85rem;
-    }
-    .pipe-label {
-      font-size: .65rem; color: var(--muted); font-weight: 500;
-      margin: 0 2px;
-    }
+    .pipe-step  { color: var(--text); font-weight: 700; }
+    .pipe-arrow { margin: 0 8px; color: var(--accent); font-size: .85rem; }
+    .pipe-label { font-size: .65rem; color: var(--muted); font-weight: 500; margin: 0 2px; }
 
     .formula-grid {
       display: grid;
@@ -281,8 +273,7 @@
     .formula-eq .sup { font-size: .65em; vertical-align: super; }
     .formula-eq .frac {
       display: inline-flex; flex-direction: column; align-items: center;
-      vertical-align: middle; font-size: .85em; line-height: 1.2;
-      margin: 0 2px;
+      vertical-align: middle; font-size: .85em; line-height: 1.2; margin: 0 2px;
     }
     .formula-eq .frac-num { border-bottom: 1px solid currentColor; padding: 0 2px; }
     .formula-eq .frac-den { padding: 0 2px; }
@@ -291,8 +282,7 @@
       grid-template-columns: auto 1fr;
       gap: 1px 10px;
       border-left: 2px solid var(--accent);
-      padding-left: 8px;
-      margin-top: 4px;
+      padding-left: 8px; margin-top: 4px;
     }
     .formula-eq .case-expr { font-weight: 600; }
     .formula-eq .case-cond { color: var(--muted); font-size: .72rem; align-self: center; }
@@ -300,8 +290,7 @@
       font-family: monospace; font-size: .74rem;
       line-height: 1.7; margin: 4px 0;
       border-left: 2px solid var(--border);
-      padding-left: 10px;
-      color: var(--text);
+      padding-left: 10px; color: var(--text);
     }
     .formula-matrix .row { display: flex; gap: 6px; align-items: center; }
     .formula-matrix .eq-var { color: var(--accent); font-weight: 700; min-width: 14px; }
@@ -315,13 +304,261 @@
       font-size: .75rem; color: var(--text);
     }
 
-    /* Responsive */
-    @media (max-width: 700px) {
+    /* ════════════════════════════════════
+       LEFT PANEL — Visualization
+    ════════════════════════════════════ */
+
+    /* Pipeline diagram */
+    .pipeline-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .pipeline-header {
+      padding: 10px 14px 0;
+      font-size: .70rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .09em; color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .pipeline-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0 10px 10px;
+    }
+    .pipe-node {
+      position: relative;
+    }
+    .pipe-node-btn {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .15s, box-shadow .15s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .pipe-node-btn:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
+    .pipe-node-btn.out-of-gamut { border-color: #ef4444 !important; }
+
+    .pipe-node-left { display: flex; align-items: center; gap: 10px; }
+    .pipe-node-badge {
+      font-size: .65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: #fff;
+      background: var(--accent);
+      border-radius: 5px; padding: 2px 6px;
+      flex-shrink: 0;
+    }
+    .pipe-node-name { font-size: .76rem; font-weight: 700; color: var(--text); }
+    .pipe-node-vals {
+      font-size: .66rem; font-family: monospace; color: var(--muted);
+      text-align: right; line-height: 1.4; flex-shrink: 0;
+    }
+    .pipe-node-arrow-down {
+      display: flex; justify-content: center; align-items: center;
+      height: 13px;
+      font-size: .68rem; color: var(--accent);
+      font-weight: 700;
+    }
+    .pipe-accordion {
+      display: none;
+      background: var(--accent-light);
+      border: 2px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 12px 14px;
+      font-size: .74rem; font-family: monospace;
+      color: var(--text); line-height: 1.8;
+      margin-top: -2px;
+    }
+    .pipe-accordion.open { display: block; }
+    .pipe-accordion .kw  { color: var(--accent); font-weight: 700; }
+    .pipe-accordion .num { color: #0891b2; }
+
+    /* a*b* Plot */
+    .abplot-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+    }
+    .abplot-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .abplot-title {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .09em; color: var(--muted);
+    }
+    .abplot-coords {
+      font-size: .72rem; font-family: monospace; color: var(--muted);
+    }
+
+    .abplot-body {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    /* L* vertical slider area */
+    .l-slider-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .l-slider-label {
+      font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase;
+    }
+    .l-slider-val {
+      font-size: .7rem; font-family: monospace; color: var(--accent); font-weight: 700;
+    }
+    .l-slider-track {
+      position: relative;
+      width: 28px;
+      height: 110px;
+      display: flex;
+      justify-content: center;
+    }
+    input#lSliderVis {
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 28px;
+      height: 100%;
+      cursor: pointer;
+      background: linear-gradient(to top, #000, #fff);
+      border-radius: 4px;
+    }
+    input#lSliderVis::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+    input#lSliderVis::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #fff;
+    }
+
+    /* Canvas area */
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    #mainCanvas {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+      cursor: crosshair;
+      max-width: 100%;
+    }
+    .canvas-axis-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-size: .65rem; color: var(--muted);
+      padding: 0 4px;
+    }
+    .canvas-caption {
+      font-size: .68rem; color: var(--muted);
+      text-align: center;
+    }
+    .gamut-warning {
+      display: none;
+      padding: 6px 10px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 7px;
+      font-size: .72rem; color: #dc2626; font-weight: 500;
+      text-align: center;
+    }
+    .gamut-warning.visible { display: block; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .panel-left, .panel-right { flex: none; width: 100%; }
       .cards { grid-template-columns: 1fr; }
-      .preview-section { justify-content: center; }
-      .preview-info { min-width: 0; width: 100%; }
-      .canvas-wrap { order: -1; }
       .formula-grid { grid-template-columns: 1fr; }
+      .abplot-body { flex-direction: column; align-items: center; }
+      .l-slider-track { height: 32px; width: 200px; }
+      input#lSliderVis {
+        -webkit-appearance: none;
+        appearance: none;
+        writing-mode: horizontal-tb;
+        direction: ltr;
+        width: 200px;
+        height: 28px;
+      }
+      .l-slider-wrap { flex-direction: row; width: 100%; gap: 10px; }
+    }
+    @media (max-width: 480px) {
+      .cards { gap: 10px; }
+    }
+
+    /* ── 3D 색 공간 시각화 ── */
+    .viz3d-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 20px;
+      margin-bottom: 16px;
+    }
+    .viz3d-section-header {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .09em; color: var(--muted);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .viz3d-section-header span {
+      font-weight: 400; font-size: .68rem; text-transform: none;
+      letter-spacing: 0; color: var(--muted);
+    }
+    .viz3d-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .viz3d-card {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .viz3d-card-title {
+      font-size: .78rem; font-weight: 700; color: var(--text); text-align: center;
+    }
+    .viz3d-canvas {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: grab;
+      display: block;
+      width: 100%;
+      touch-action: none;
+      background: #f8fafc;
+    }
+    .viz3d-canvas:active { cursor: grabbing; }
+    .viz3d-hint { font-size: .66rem; color: var(--muted); }
+    .viz3d-axes-hint {
+      font-size: .68rem; color: var(--muted); font-family: monospace;
+      text-align: center; line-height: 1.5;
+    }
+    @media (max-width: 900px) {
+      .viz3d-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .viz3d-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -333,287 +570,460 @@
     <p>CIE L*a*b* &nbsp;·&nbsp; CIE L*C*h° &nbsp;·&nbsp; sRGB (D65)</p>
   </header>
 
-  <!-- Preview -->
-  <section class="preview-section">
-    <div class="swatch" id="swatch"></div>
-    <div class="preview-info">
-      <div class="hex-big"  id="hexBig">#808080</div>
-      <div class="rgb-small" id="rgbSmall">rgb(128, 128, 128)</div>
-      <div class="gamut-row">
-        <div class="g-dot in" id="gDot"></div>
-        <span class="g-text in" id="gText">sRGB 범위 내</span>
-      </div>
-      <button class="copy-btn" id="copyBtn">HEX 복사</button>
+  <!-- ══════════════ 3D 색 공간 시각화 ══════════════ -->
+  <div class="viz3d-section">
+    <div class="viz3d-section-header">
+      3D 색 공간 시각화
+      <span>— 드래그하여 회전 &nbsp;·&nbsp; 흰 테두리 점 = 현재 색상</span>
     </div>
-    <div class="canvas-wrap">
-      <canvas id="gamutCanvas" width="150" height="150" title="현재 L* 값 기준 a*b* 색도도"></canvas>
-      <span class="canvas-caption">a*b* 색도도 (현재 L* 기준)</span>
-    </div>
-  </section>
+    <div class="viz3d-grid">
 
-  <!-- Presets -->
-  <div class="presets">
-    <span class="presets-label">예시 색상</span>
+      <div class="viz3d-card">
+        <div class="viz3d-card-title">sRGB 색 공간</div>
+        <canvas class="viz3d-canvas" id="rgbCanvas" width="240" height="155"></canvas>
+        <div class="viz3d-axes-hint">
+          <span style="color:#dc2626">X=R</span> &nbsp;·&nbsp;
+          <span style="color:#16a34a">Y=G</span> &nbsp;·&nbsp;
+          <span style="color:#2563eb">Z=B</span>
+        </div>
+      </div>
+
+      <div class="viz3d-card">
+        <div class="viz3d-card-title">CIE L*a*b* 색 공간</div>
+        <canvas class="viz3d-canvas" id="labCanvas" width="240" height="155"></canvas>
+        <div class="viz3d-axes-hint">
+          <span style="color:#dc2626">X=+a*(Red)</span> &nbsp;·&nbsp;
+          <span style="color:#64748b">Y=L*</span> &nbsp;·&nbsp;
+          <span style="color:#ca8a04">Z=+b*(Yellow)</span>
+        </div>
+      </div>
+
+      <div class="viz3d-card">
+        <div class="viz3d-card-title">CIE L*C*h° 색 공간</div>
+        <canvas class="viz3d-canvas" id="lchCanvas" width="240" height="155"></canvas>
+        <div class="viz3d-axes-hint">
+          <span style="color:#64748b">Y=L*</span> &nbsp;·&nbsp;
+          반경=C* &nbsp;·&nbsp; 각도=h°
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Cards -->
-  <div class="cards">
+  <div class="layout">
 
-    <!-- CIE L*a*b* -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">CIE L*a*b*</span>
-        <span class="card-sub">직교 좌표계</span>
-      </div>
+    <!-- ══════════════ LEFT PANEL ══════════════ -->
+    <div class="panel-left">
 
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name">L*</span><span class="field-desc">밝기 (0→100)</span></div>
-          <span class="field-readout" id="labLOut">50.00</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="labLS" min="0" max="100" step="0.01" value="50">
-          <input type="number" id="labLN" min="0" max="100" step="0.01" value="50">
-        </div>
-      </div>
+      <!-- ① 파이프라인 다이어그램 -->
+      <div class="pipeline-section">
+        <div class="pipeline-header">변환 파이프라인 (클릭하여 수식 보기)</div>
+        <div class="pipeline-flow">
 
-      <div class="field">
-        <div class="field-top">
-          <div>
-            <span class="field-name">a*</span>
-            <span class="field-desc" style="color:#dc2626">+Red</span>
-            <span class="field-desc"> / </span>
-            <span class="field-desc" style="color:#16a34a">−Green</span>
-          </div>
-          <span class="field-readout" id="labAOut">0.00</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="labAS" min="-150" max="150" step="0.01" value="0">
-          <input type="number" id="labAN" min="-150" max="150" step="0.01" value="0">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div>
-            <span class="field-name">b*</span>
-            <span class="field-desc" style="color:#ca8a04">+Yellow</span>
-            <span class="field-desc"> / </span>
-            <span class="field-desc" style="color:#2563eb">−Blue</span>
-          </div>
-          <span class="field-readout" id="labBOut">0.00</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="labBS" min="-150" max="150" step="0.01" value="0">
-          <input type="number" id="labBN" min="-150" max="150" step="0.01" value="0">
-        </div>
-      </div>
-    </div>
-
-    <!-- CIE L*C*h° -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">CIE L*C*h°</span>
-        <span class="card-sub">원통 좌표계</span>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name">L*</span><span class="field-desc">밝기 (0→100)</span></div>
-          <span class="field-readout" id="lchLOut">50.00</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="lchLS" min="0" max="100" step="0.01" value="50">
-          <input type="number" id="lchLN" min="0" max="100" step="0.01" value="50">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name">C*</span><span class="field-desc">채도 (0→150+)</span></div>
-          <span class="field-readout" id="lchCOut">0.00</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="lchCS" min="0" max="150" step="0.01" value="0">
-          <input type="number" id="lchCN" min="0" max="150" step="0.01" value="0">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name">h°</span><span class="field-desc">색상각 (0→360)</span></div>
-          <span class="field-readout" id="lchHOut">0.00°</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="lchHS" min="0" max="360" step="0.01" value="0">
-          <input type="number" id="lchHN" min="0" max="360" step="0.01" value="0">
-        </div>
-      </div>
-
-      <div class="hue-badge" id="hueBadge">빨강 (Red) · 0°</div>
-    </div>
-
-    <!-- sRGB -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">sRGB</span>
-        <span class="card-sub">D65 기준 · 8비트 (0–255)</span>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name" style="color:#dc2626">R</span><span class="field-desc">Red</span></div>
-          <span class="field-readout" id="rgbROut">128</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="rgbRS" min="0" max="255" step="1" value="128">
-          <input type="number" id="rgbRN" min="0" max="255" step="1" value="128">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name" style="color:#16a34a">G</span><span class="field-desc">Green</span></div>
-          <span class="field-readout" id="rgbGOut">128</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="rgbGS" min="0" max="255" step="1" value="128">
-          <input type="number" id="rgbGN" min="0" max="255" step="1" value="128">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-top">
-          <div><span class="field-name" style="color:#2563eb">B</span><span class="field-desc">Blue</span></div>
-          <span class="field-readout" id="rgbBOut">128</span>
-        </div>
-        <div class="field-row">
-          <input type="range" id="rgbBS" min="0" max="255" step="1" value="128">
-          <input type="number" id="rgbBN" min="0" max="255" step="1" value="128">
-        </div>
-      </div>
-
-      <div class="hex-field">
-        <div class="field-name" style="font-size:.78rem;color:var(--muted);">HEX</div>
-        <input type="text" id="hexIn" value="#808080" maxlength="7" spellcheck="false" placeholder="#RRGGBB">
-      </div>
-    </div>
-
-  </div><!-- /cards -->
-
-  <!-- Formula Section -->
-  <div class="formula-section">
-    <button class="formula-toggle" id="formulaToggle" aria-expanded="false">
-      <span>변환 수식 (Conversion Formulas)</span>
-      <span class="toggle-arrow">▼</span>
-    </button>
-    <div class="formula-body" id="formulaBody">
-
-      <!-- Pipeline -->
-      <div class="formula-pipeline">
-        <span class="pipe-step">sRGB</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-label">(감마 디코딩)</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-step">Linear RGB</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-label">(행렬 변환)</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-step">XYZ</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-label">(비선형화)</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-step">L*a*b*</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-label">(극좌표)</span>
-        <span class="pipe-arrow">→</span>
-        <span class="pipe-step">L*C*h°</span>
-      </div>
-
-      <div class="formula-grid">
-
-        <!-- ① 감마 디코딩 -->
-        <div class="formula-block">
-          <div class="formula-block-title">
-            <span class="step-badge">①</span>
-            감마 디코딩 — sRGB → Linear RGB
-          </div>
-          <div class="formula-eq">
-            <span class="kw">C'</span> = C<span class="sub">sRGB</span> / <span class="num">255</span><br>
-            <div class="case-block">
-              <span class="case-expr">C' / <span class="num">12.92</span></span>
-              <span class="case-cond">(C' ≤ 0.04045)</span>
-              <span class="case-expr">((C' + <span class="num">0.055</span>) / <span class="num">1.055</span>)<span class="sup">2.4</span></span>
-              <span class="case-cond">(C' > 0.04045)</span>
+          <!-- sRGB -->
+          <div class="pipe-node">
+            <button class="pipe-node-btn" data-step="srgb" aria-expanded="false">
+              <div class="pipe-node-left">
+                <span class="pipe-node-badge">sRGB</span>
+                <span class="pipe-node-name">sRGB (8-bit)</span>
+              </div>
+              <div class="pipe-node-vals" id="pipeValSrgb">R 128 &nbsp;G 128 &nbsp;B 128</div>
+            </button>
+            <div class="pipe-accordion" id="pipeAcc-srgb">
+              R, G, B ∈ [0, 255] &nbsp;(8비트 정수)<br>
+              HEX: <span class="kw">#RRGGBB</span> 표기
             </div>
           </div>
-          <div class="formula-note">역방향(감마 인코딩): <code>v ≤ 0.0031308 → 12.92·v</code>, 그 외 <code>1.055·v<sup>1/2.4</sup> − 0.055</code></div>
-        </div>
+          <div class="pipe-node-arrow-down">↓ 감마 디코딩</div>
 
-        <!-- ② RGB → XYZ -->
-        <div class="formula-block">
-          <div class="formula-block-title">
-            <span class="step-badge">②</span>
-            Linear RGB → XYZ &nbsp;(IEC 61966-2-1, D65)
-          </div>
-          <div class="formula-matrix">
-            <div class="row"><span class="eq-var">X</span> = <span class="coeff">0.4124564</span>·R + <span class="coeff">0.3575761</span>·G + <span class="coeff">0.1804375</span>·B</div>
-            <div class="row"><span class="eq-var">Y</span> = <span class="coeff">0.2126729</span>·R + <span class="coeff">0.7151522</span>·G + <span class="coeff">0.0721750</span>·B</div>
-            <div class="row"><span class="eq-var">Z</span> = <span class="coeff">0.0193339</span>·R + <span class="coeff">0.1191920</span>·G + <span class="coeff">0.9503041</span>·B</div>
-          </div>
-          <div class="formula-note">역방향(XYZ → Linear RGB) 역행렬도 IEC 61966-2-1 공식값 사용<br>
-            X<span class="sub">n</span>=<code>95.047</code> &nbsp;Y<span class="sub">n</span>=<code>100.000</code> &nbsp;Z<span class="sub">n</span>=<code>108.883</code> (D65 화이트포인트)</div>
-        </div>
-
-        <!-- ③ XYZ → Lab -->
-        <div class="formula-block">
-          <div class="formula-block-title">
-            <span class="step-badge">③</span>
-            XYZ → CIE L*a*b*
-          </div>
-          <div class="formula-eq">
-            ε = <span class="num">216</span>/<span class="num">24389</span> ≈ <span class="num">0.008856</span><br>
-            κ = <span class="num">24389</span>/<span class="num">27</span> ≈ <span class="num">903.3</span><br><br>
-            <div class="case-block">
-              <span class="case-expr">∛t</span>
-              <span class="case-cond">(t > ε)</span>
-              <span class="case-expr">(κt + <span class="num">16</span>) / <span class="num">116</span></span>
-              <span class="case-cond">(t ≤ ε)</span>
+          <!-- Linear RGB -->
+          <div class="pipe-node">
+            <button class="pipe-node-btn" data-step="linear" aria-expanded="false">
+              <div class="pipe-node-left">
+                <span class="pipe-node-badge" style="background:#7c3aed">Lin</span>
+                <span class="pipe-node-name">Linear RGB</span>
+              </div>
+              <div class="pipe-node-vals" id="pipeValLinear">r 0.216 &nbsp;g 0.216 &nbsp;b 0.216</div>
+            </button>
+            <div class="pipe-accordion" id="pipeAcc-linear">
+              C' = C<span class="num">sRGB</span> / 255<br>
+              <span class="kw">if</span> C' ≤ 0.04045 → C' / 12.92<br>
+              <span class="kw">else</span> → ((C' + 0.055) / 1.055)<span class="num">^2.4</span>
             </div>
-            <br>
-            <span class="kw">L*</span> = 116·f(Y/Y<span class="sub">n</span>) − 16<br>
-            <span class="kw">a*</span> = 500·[ f(X/X<span class="sub">n</span>) − f(Y/Y<span class="sub">n</span>) ]<br>
-            <span class="kw">b*</span> = 200·[ f(Y/Y<span class="sub">n</span>) − f(Z/Z<span class="sub">n</span>) ]
+          </div>
+          <div class="pipe-node-arrow-down">↓ 행렬 변환 (IEC 61966-2-1, D65)</div>
+
+          <!-- XYZ -->
+          <div class="pipe-node">
+            <button class="pipe-node-btn" data-step="xyz" aria-expanded="false">
+              <div class="pipe-node-left">
+                <span class="pipe-node-badge" style="background:#0891b2">XYZ</span>
+                <span class="pipe-node-name">CIE XYZ</span>
+              </div>
+              <div class="pipe-node-vals" id="pipeValXyz">X 20.52 &nbsp;Y 21.59 &nbsp;Z 23.52</div>
+            </button>
+            <div class="pipe-accordion" id="pipeAcc-xyz">
+              X = <span class="num">0.4124564</span>·R + <span class="num">0.3575761</span>·G + <span class="num">0.1804375</span>·B<br>
+              Y = <span class="num">0.2126729</span>·R + <span class="num">0.7151522</span>·G + <span class="num">0.0721750</span>·B<br>
+              Z = <span class="num">0.0193339</span>·R + <span class="num">0.1191920</span>·G + <span class="num">0.9503041</span>·B<br>
+              <span style="color:var(--muted);font-size:.9em">(R,G,B는 Linear값, ×100 스케일)</span>
+            </div>
+          </div>
+          <div class="pipe-node-arrow-down">↓ 비선형화 (CIE f 함수)</div>
+
+          <!-- LAB -->
+          <div class="pipe-node">
+            <button class="pipe-node-btn" data-step="lab" aria-expanded="false">
+              <div class="pipe-node-left">
+                <span class="pipe-node-badge" style="background:#059669">L*a*b*</span>
+                <span class="pipe-node-name">CIE L*a*b*</span>
+              </div>
+              <div class="pipe-node-vals" id="pipeValLab">L 53.39 &nbsp;a 0.00 &nbsp;b 0.00</div>
+            </button>
+            <div class="pipe-accordion" id="pipeAcc-lab">
+              f(t): t &gt; ε → ∛t &nbsp;| t ≤ ε → (κt+16)/116<br>
+              ε = 216/24389 ≈ <span class="num">0.008856</span><br>
+              κ = 24389/27 ≈ <span class="num">903.3</span><br>
+              <span class="kw">L*</span> = 116·f(Y/Yₙ) − 16<br>
+              <span class="kw">a*</span> = 500·[f(X/Xₙ) − f(Y/Yₙ)]<br>
+              <span class="kw">b*</span> = 200·[f(Y/Yₙ) − f(Z/Zₙ)]
+            </div>
+          </div>
+          <div class="pipe-node-arrow-down">↓ 극좌표 변환</div>
+
+          <!-- LCH -->
+          <div class="pipe-node">
+            <button class="pipe-node-btn" data-step="lch" aria-expanded="false">
+              <div class="pipe-node-left">
+                <span class="pipe-node-badge" style="background:#ea580c">L*C*h°</span>
+                <span class="pipe-node-name">CIE L*C*h°</span>
+              </div>
+              <div class="pipe-node-vals" id="pipeValLch">L 53.39 &nbsp;C 0.00 &nbsp;h 0.00°</div>
+            </button>
+            <div class="pipe-accordion" id="pipeAcc-lch">
+              <span class="kw">C*</span> = √(a*² + b*²)<br>
+              <span class="kw">h°</span> = atan2(b*, a*) × (180/π) &nbsp;∈ [0°,360°)
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ② a*b* 플롯 + LCH 극좌표 오버레이 -->
+      <div class="abplot-section">
+        <div class="abplot-header">
+          <span class="abplot-title">a*b* 색도도 &amp; LCH 극좌표</span>
+          <span class="abplot-coords" id="abCoords">a* 0.00 &nbsp;b* 0.00</span>
+        </div>
+
+        <div class="abplot-body">
+          <!-- L* 수직 슬라이더 -->
+          <div class="l-slider-wrap">
+            <span class="l-slider-label">L*</span>
+            <span class="l-slider-val" id="lSliderVal">53</span>
+            <div class="l-slider-track">
+              <input type="range" id="lSliderVis" min="0" max="100" step="0.1" value="53">
+            </div>
+          </div>
+
+          <!-- Canvas -->
+          <div class="canvas-area">
+            <canvas id="mainCanvas" width="200" height="200"
+              title="마우스를 드래그해서 a*, b* 값을 변경할 수 있습니다"></canvas>
+            <div class="canvas-axis-labels">
+              <span style="color:#16a34a">← −a* (Green)</span>
+              <span style="color:#dc2626">+a* (Red) →</span>
+            </div>
+            <div class="canvas-caption">← −b*(Blue) ↑ &nbsp; ↑ +b*(Yellow) →</div>
+            <div class="gamut-warning" id="gamutWarning">
+              ⚠ sRGB 범위 초과 — 실제 표시색은 클리핑됩니다
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-left -->
+
+    <!-- ══════════════ RIGHT PANEL ══════════════ -->
+    <div class="panel-right">
+
+      <!-- Preview -->
+      <section class="preview-section">
+        <div class="swatch" id="swatch"></div>
+        <div class="preview-info">
+          <div class="hex-big"  id="hexBig">#808080</div>
+          <div class="rgb-small" id="rgbSmall">rgb(128, 128, 128)</div>
+          <div class="gamut-row">
+            <div class="g-dot in" id="gDot"></div>
+            <span class="g-text in" id="gText">sRGB 범위 내</span>
+          </div>
+          <button class="copy-btn" id="copyBtn">HEX 복사</button>
+        </div>
+      </section>
+
+      <!-- Presets -->
+      <div class="presets">
+        <span class="presets-label">예시 색상</span>
+      </div>
+
+      <!-- Calculator cards -->
+      <div class="cards">
+
+        <!-- CIE L*a*b* -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">CIE L*a*b*</span>
+            <span class="card-sub">직교 좌표계</span>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name">L*</span><span class="field-desc">밝기 (0→100)</span></div>
+              <span class="field-readout" id="labLOut">50.00</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="labLS" min="0" max="100" step="0.01" value="50">
+              <input type="number" id="labLN" min="0" max="100" step="0.01" value="50">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div>
+                <span class="field-name">a*</span>
+                <span class="field-desc" style="color:#dc2626">+Red</span>
+                <span class="field-desc"> / </span>
+                <span class="field-desc" style="color:#16a34a">−Green</span>
+              </div>
+              <span class="field-readout" id="labAOut">0.00</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="labAS" min="-150" max="150" step="0.01" value="0">
+              <input type="number" id="labAN" min="-150" max="150" step="0.01" value="0">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div>
+                <span class="field-name">b*</span>
+                <span class="field-desc" style="color:#ca8a04">+Yellow</span>
+                <span class="field-desc"> / </span>
+                <span class="field-desc" style="color:#2563eb">−Blue</span>
+              </div>
+              <span class="field-readout" id="labBOut">0.00</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="labBS" min="-150" max="150" step="0.01" value="0">
+              <input type="number" id="labBN" min="-150" max="150" step="0.01" value="0">
+            </div>
           </div>
         </div>
 
-        <!-- ④ Lab → LCh -->
-        <div class="formula-block">
-          <div class="formula-block-title">
-            <span class="step-badge">④</span>
-            CIE L*a*b* → L*C*h°
+        <!-- CIE L*C*h° -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">CIE L*C*h°</span>
+            <span class="card-sub">원통 좌표계</span>
           </div>
-          <div class="formula-eq">
-            <span class="kw">C*</span> = √(a*<span class="sup">2</span> + b*<span class="sup">2</span>)<br><br>
-            <span class="kw">h°</span> = atan2(b*, a*) × <span class="frac"><span class="frac-num">180</span><span class="frac-den">π</span></span><br><br>
-            <span style="color:var(--muted);font-size:.72rem;">h° ∈ [0°, 360°) &nbsp;·&nbsp; C* = 0 이면 무채색</span>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name">L*</span><span class="field-desc">밝기 (0→100)</span></div>
+              <span class="field-readout" id="lchLOut">50.00</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="lchLS" min="0" max="100" step="0.01" value="50">
+              <input type="number" id="lchLN" min="0" max="100" step="0.01" value="50">
+            </div>
           </div>
-          <div class="formula-note">역방향: <code>a* = C*·cos(h°)</code> &nbsp; <code>b* = C*·sin(h°)</code></div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name">C*</span><span class="field-desc">채도 (0→150+)</span></div>
+              <span class="field-readout" id="lchCOut">0.00</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="lchCS" min="0" max="150" step="0.01" value="0">
+              <input type="number" id="lchCN" min="0" max="150" step="0.01" value="0">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name">h°</span><span class="field-desc">색상각 (0→360)</span></div>
+              <span class="field-readout" id="lchHOut">0.00°</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="lchHS" min="0" max="360" step="0.01" value="0">
+              <input type="number" id="lchHN" min="0" max="360" step="0.01" value="0">
+            </div>
+          </div>
+
+          <div class="hue-badge" id="hueBadge">빨강 (Red) · 0°</div>
         </div>
 
-      </div><!-- /formula-grid -->
-    </div><!-- /formula-body -->
-  </div><!-- /formula-section -->
+        <!-- sRGB -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">sRGB</span>
+            <span class="card-sub">D65 기준 · 8비트 (0–255)</span>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name" style="color:#dc2626">R</span><span class="field-desc">Red</span></div>
+              <span class="field-readout" id="rgbROut">128</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="rgbRS" min="0" max="255" step="1" value="128">
+              <input type="number" id="rgbRN" min="0" max="255" step="1" value="128">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name" style="color:#16a34a">G</span><span class="field-desc">Green</span></div>
+              <span class="field-readout" id="rgbGOut">128</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="rgbGS" min="0" max="255" step="1" value="128">
+              <input type="number" id="rgbGN" min="0" max="255" step="1" value="128">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <div><span class="field-name" style="color:#2563eb">B</span><span class="field-desc">Blue</span></div>
+              <span class="field-readout" id="rgbBOut">128</span>
+            </div>
+            <div class="field-row">
+              <input type="range" id="rgbBS" min="0" max="255" step="1" value="128">
+              <input type="number" id="rgbBN" min="0" max="255" step="1" value="128">
+            </div>
+          </div>
+
+          <div class="hex-field">
+            <div class="field-name" style="font-size:.78rem;color:var(--muted);">HEX</div>
+            <input type="text" id="hexIn" value="#808080" maxlength="7" spellcheck="false" placeholder="#RRGGBB">
+          </div>
+        </div>
+
+      </div><!-- /cards -->
+
+      <!-- Formula Section -->
+      <div class="formula-section">
+        <button class="formula-toggle" id="formulaToggle" aria-expanded="false">
+          <span>변환 수식 (Conversion Formulas)</span>
+          <span class="toggle-arrow">▼</span>
+        </button>
+        <div class="formula-body" id="formulaBody">
+
+          <div class="formula-pipeline">
+            <span class="pipe-step">sRGB</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-label">(감마 디코딩)</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-step">Linear RGB</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-label">(행렬 변환)</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-step">XYZ</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-label">(비선형화)</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-step">L*a*b*</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-label">(극좌표)</span>
+            <span class="pipe-arrow">→</span>
+            <span class="pipe-step">L*C*h°</span>
+          </div>
+
+          <div class="formula-grid">
+
+            <div class="formula-block">
+              <div class="formula-block-title">
+                <span class="step-badge">①</span>
+                감마 디코딩 — sRGB → Linear RGB
+              </div>
+              <div class="formula-eq">
+                <span class="kw">C'</span> = C<span class="sub">sRGB</span> / <span class="num">255</span><br>
+                <div class="case-block">
+                  <span class="case-expr">C' / <span class="num">12.92</span></span>
+                  <span class="case-cond">(C' ≤ 0.04045)</span>
+                  <span class="case-expr">((C' + <span class="num">0.055</span>) / <span class="num">1.055</span>)<span class="sup">2.4</span></span>
+                  <span class="case-cond">(C' > 0.04045)</span>
+                </div>
+              </div>
+              <div class="formula-note">역방향(감마 인코딩): <code>v ≤ 0.0031308 → 12.92·v</code>, 그 외 <code>1.055·v<sup>1/2.4</sup> − 0.055</code></div>
+            </div>
+
+            <div class="formula-block">
+              <div class="formula-block-title">
+                <span class="step-badge">②</span>
+                Linear RGB → XYZ &nbsp;(IEC 61966-2-1, D65)
+              </div>
+              <div class="formula-matrix">
+                <div class="row"><span class="eq-var">X</span> = <span class="coeff">0.4124564</span>·R + <span class="coeff">0.3575761</span>·G + <span class="coeff">0.1804375</span>·B</div>
+                <div class="row"><span class="eq-var">Y</span> = <span class="coeff">0.2126729</span>·R + <span class="coeff">0.7151522</span>·G + <span class="coeff">0.0721750</span>·B</div>
+                <div class="row"><span class="eq-var">Z</span> = <span class="coeff">0.0193339</span>·R + <span class="coeff">0.1191920</span>·G + <span class="coeff">0.9503041</span>·B</div>
+              </div>
+              <div class="formula-note">역방향(XYZ → Linear RGB) 역행렬도 IEC 61966-2-1 공식값 사용<br>
+                X<span class="sub">n</span>=<code>95.047</code> &nbsp;Y<span class="sub">n</span>=<code>100.000</code> &nbsp;Z<span class="sub">n</span>=<code>108.883</code> (D65 화이트포인트)</div>
+            </div>
+
+            <div class="formula-block">
+              <div class="formula-block-title">
+                <span class="step-badge">③</span>
+                XYZ → CIE L*a*b*
+              </div>
+              <div class="formula-eq">
+                ε = <span class="num">216</span>/<span class="num">24389</span> ≈ <span class="num">0.008856</span><br>
+                κ = <span class="num">24389</span>/<span class="num">27</span> ≈ <span class="num">903.3</span><br><br>
+                <div class="case-block">
+                  <span class="case-expr">∛t</span>
+                  <span class="case-cond">(t > ε)</span>
+                  <span class="case-expr">(κt + <span class="num">16</span>) / <span class="num">116</span></span>
+                  <span class="case-cond">(t ≤ ε)</span>
+                </div>
+                <br>
+                <span class="kw">L*</span> = 116·f(Y/Y<span class="sub">n</span>) − 16<br>
+                <span class="kw">a*</span> = 500·[ f(X/X<span class="sub">n</span>) − f(Y/Y<span class="sub">n</span>) ]<br>
+                <span class="kw">b*</span> = 200·[ f(Y/Y<span class="sub">n</span>) − f(Z/Z<span class="sub">n</span>) ]
+              </div>
+            </div>
+
+            <div class="formula-block">
+              <div class="formula-block-title">
+                <span class="step-badge">④</span>
+                CIE L*a*b* → L*C*h°
+              </div>
+              <div class="formula-eq">
+                <span class="kw">C*</span> = √(a*<span class="sup">2</span> + b*<span class="sup">2</span>)<br><br>
+                <span class="kw">h°</span> = atan2(b*, a*) × <span class="frac"><span class="frac-num">180</span><span class="frac-den">π</span></span><br><br>
+                <span style="color:var(--muted);font-size:.72rem;">h° ∈ [0°, 360°) &nbsp;·&nbsp; C* = 0 이면 무채색</span>
+              </div>
+              <div class="formula-note">역방향: <code>a* = C*·cos(h°)</code> &nbsp; <code>b* = C*·sin(h°)</code></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-right -->
+
+  </div><!-- /layout -->
 
 </div><!-- /app -->
 
 <script>
 /* ── 상수 ── */
-const D65 = { Xn: 95.047, Yn: 100.000, Zn: 108.883 };
+const D65   = { Xn: 95.047, Yn: 100.000, Zn: 108.883 };
+var CUR3 = { L: 53, a: 0, b: 0 };
 const EPS   = 216 / 24389;
 const KAPPA = 24389 / 27;
 
-/* ── 변환 함수 ── */
+/* ── 변환 함수 (기존 그대로) ── */
 function labToXyz(L, a, b) {
   const fy = (L + 16) / 116;
   const fx = a / 500 + fy;
@@ -645,7 +1055,7 @@ function labToRgb(L, a, b) {
     R: Math.round(Math.max(0, Math.min(255, gamma(Math.max(0, lin.r)) * 255))),
     G: Math.round(Math.max(0, Math.min(255, gamma(Math.max(0, lin.g)) * 255))),
     B: Math.round(Math.max(0, Math.min(255, gamma(Math.max(0, lin.b)) * 255))),
-    inGamut,
+    inGamut, lin,
   };
 }
 
@@ -688,7 +1098,7 @@ function parseHex(s) {
 }
 
 function hueName(h) {
-  if (h < 15 || h >= 345)  return '빨강 (Red)';
+  if (h < 15 || h >= 345) return '빨강 (Red)';
   if (h < 45)  return '주황 (Orange)';
   if (h < 75)  return '노랑 (Yellow)';
   if (h < 105) return '연두 (Yellow-Green)';
@@ -700,15 +1110,17 @@ function hueName(h) {
   return '분홍 (Pink)';
 }
 
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, isNaN(v) ? 0 : v)); }
+
 /* ── 캔버스 ── */
-const CSIZE = 150;
+const CSIZE   = 200;
 const ABRANGE = 150;
-const canvas = document.getElementById('gamutCanvas');
-const ctx2d  = canvas.getContext('2d');
+const canvas  = document.getElementById('mainCanvas');
+const ctx2d   = canvas.getContext('2d');
 let cacheL = null, cacheImg = null;
 
-function drawCanvas(L, markerA, markerB) {
-  const roundL = Math.round(L * 5) / 5; // 0.2 정밀도로 캐시
+function drawMainCanvas(L, markerA, markerB) {
+  const roundL = Math.round(L * 5) / 5;
 
   if (roundL !== cacheL) {
     const img = ctx2d.createImageData(CSIZE, CSIZE);
@@ -735,9 +1147,10 @@ function drawCanvas(L, markerA, markerB) {
 
   ctx2d.putImageData(cacheImg, 0, 0);
 
-  // 축선
   const cx = CSIZE / 2, cy = CSIZE / 2;
-  ctx2d.strokeStyle = 'rgba(0,0,0,0.22)';
+
+  /* 축선 */
+  ctx2d.strokeStyle = 'rgba(0,0,0,0.2)';
   ctx2d.lineWidth = 1;
   ctx2d.setLineDash([]);
   ctx2d.beginPath();
@@ -745,17 +1158,42 @@ function drawCanvas(L, markerA, markerB) {
   ctx2d.moveTo(0, cy); ctx2d.lineTo(CSIZE, cy);
   ctx2d.stroke();
 
-  // 라벨
-  ctx2d.fillStyle = 'rgba(0,0,0,0.4)';
+  /* 축 레이블 */
+  ctx2d.fillStyle = 'rgba(0,0,0,0.45)';
   ctx2d.font = 'bold 9px sans-serif';
-  ctx2d.fillText('+a*', CSIZE - 22, cy - 4);
-  ctx2d.fillText('+b*', cx + 3, 10);
+  ctx2d.fillText('+a*', CSIZE - 26, cy - 5);
+  ctx2d.fillText('+b*', cx + 4, 12);
+  ctx2d.fillText('−a*', 4, cy - 5);
+  ctx2d.fillText('−b*', cx + 4, CSIZE - 4);
 
-  // 현재 색상 마커
+  /* 마커 픽셀 좌표 */
   const mx = clamp(((markerA + ABRANGE) / (2 * ABRANGE)) * CSIZE, 0, CSIZE - 1);
   const my = clamp(((ABRANGE - markerB) / (2 * ABRANGE)) * CSIZE, 0, CSIZE - 1);
 
-  ctx2d.strokeStyle = 'rgba(0,0,0,0.35)';
+  /* LCH 극좌표: 채도 선분 */
+  ctx2d.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx2d.lineWidth = 1.5;
+  ctx2d.setLineDash([]);
+  ctx2d.beginPath();
+  ctx2d.moveTo(cx, cy);
+  ctx2d.lineTo(mx, my);
+  ctx2d.stroke();
+
+  /* LCH 극좌표: 색상각 호 */
+  const hRad = Math.atan2(-(my - cy), mx - cx); // canvas y축 반전
+  const arcR = Math.min(28, Math.hypot(mx - cx, my - cy) * 0.5);
+  if (arcR > 4) {
+    ctx2d.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx2d.lineWidth = 1.2;
+    ctx2d.setLineDash([3, 2]);
+    ctx2d.beginPath();
+    ctx2d.arc(cx, cy, arcR, -hRad, 0, hRad < 0); // from +a axis to current angle
+    ctx2d.stroke();
+    ctx2d.setLineDash([]);
+  }
+
+  /* 십자 헤어라인 (점선) */
+  ctx2d.strokeStyle = 'rgba(0,0,0,0.28)';
   ctx2d.lineWidth = 0.7;
   ctx2d.setLineDash([3, 3]);
   ctx2d.beginPath();
@@ -764,12 +1202,13 @@ function drawCanvas(L, markerA, markerB) {
   ctx2d.stroke();
   ctx2d.setLineDash([]);
 
+  /* 마커 원 */
   ctx2d.beginPath();
-  ctx2d.arc(mx, my, 5.5, 0, 2 * Math.PI);
+  ctx2d.arc(mx, my, 6, 0, 2 * Math.PI);
   ctx2d.fillStyle = '#fff';
   ctx2d.fill();
   ctx2d.strokeStyle = '#000';
-  ctx2d.lineWidth = 1.5;
+  ctx2d.lineWidth = 1.8;
   ctx2d.stroke();
 }
 
@@ -802,11 +1241,38 @@ function setRgbUI(R, G, B) {
 function setPreviewUI(R, G, B, inGamut) {
   const hex = rgbToHex(R, G, B).toUpperCase();
   el('swatch').style.backgroundColor = `rgb(${R},${G},${B})`;
-  el('hexBig').textContent  = hex;
+  el('hexBig').textContent   = hex;
   el('rgbSmall').textContent = `rgb(${R}, ${G}, ${B})`;
-  el('gDot').className  = 'g-dot ' + (inGamut ? 'in' : 'out');
+  el('gDot').className  = 'g-dot '  + (inGamut ? 'in' : 'out');
   el('gText').className = 'g-text ' + (inGamut ? 'in' : 'out');
   el('gText').textContent = inGamut ? 'sRGB 범위 내' : 'sRGB 범위 초과 (실제 표시색은 클리핑됨)';
+  el('gamutWarning').classList.toggle('visible', !inGamut);
+}
+
+function setLeftPanelUI(L, a, b, inGamut) {
+  /* L* 수직 슬라이더 */
+  el('lSliderVis').value = L;
+  el('lSliderVal').textContent = L.toFixed(1);
+
+  /* 좌표 표시 */
+  const lch = labToLch(L, a, b);
+  el('abCoords').textContent =
+    `a* ${a.toFixed(2)}  b* ${b.toFixed(2)}  |  C* ${lch.C.toFixed(2)}  h° ${lch.h.toFixed(1)}°`;
+
+  /* 파이프라인 값 갱신 */
+  const linR = deGamma(labToRgb(L, a, b).R); // approximate (rounded)
+  const { R, G, B } = labToRgb(L, a, b);
+  const rL = deGamma(R), gL = deGamma(G), bL = deGamma(B);
+  const xyz = labToXyz(L, a, b);
+
+  el('pipeValSrgb').textContent   = `R ${R}  G ${G}  B ${B}`;
+  el('pipeValLinear').textContent = `r ${rL.toFixed(3)}  g ${gL.toFixed(3)}  b ${bL.toFixed(3)}`;
+  el('pipeValXyz').textContent    = `X ${xyz.X.toFixed(2)}  Y ${xyz.Y.toFixed(2)}  Z ${xyz.Z.toFixed(2)}`;
+  el('pipeValLab').textContent    = `L ${L.toFixed(2)}  a ${a.toFixed(2)}  b ${b.toFixed(2)}`;
+  el('pipeValLch').textContent    = `L ${L.toFixed(2)}  C ${lch.C.toFixed(2)}  h ${lch.h.toFixed(2)}°`;
+
+  /* gamut 초과 시 RGB 노드 강조 */
+  document.querySelector('[data-step="srgb"]').classList.toggle('out-of-gamut', !inGamut);
 }
 
 /* ── 메인 업데이트 ── */
@@ -819,16 +1285,17 @@ function applyLab(L, a, b) {
   setLchUI(lch.L, lch.C, lch.h);
   setRgbUI(rgb.R, rgb.G, rgb.B);
   setPreviewUI(rgb.R, rgb.G, rgb.B, rgb.inGamut);
-  drawCanvas(L, a, b);
+  setLeftPanelUI(L, a, b, rgb.inGamut);
+  drawMainCanvas(L, a, b);
+  CUR3.L = L; CUR3.a = a; CUR3.b = b;
+  if (window.update3DThree) window.update3DThree();
 }
 
-function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, isNaN(v) ? 0 : v)); }
+function readLab() { return { L: clamp(+el('labLN').value,0,100), a: clamp(+el('labAN').value,-150,150), b: clamp(+el('labBN').value,-150,150) }; }
+function readLch() { return { L: clamp(+el('lchLN').value,0,100), C: clamp(+el('lchCN').value,0,150),   h: clamp(+el('lchHN').value,0,360) }; }
+function readRgb() { return { R: clamp(+el('rgbRN').value,0,255)|0, G: clamp(+el('rgbGN').value,0,255)|0, B: clamp(+el('rgbBN').value,0,255)|0 }; }
 
-function readLab()  { return { L: clamp(+el('labLN').value,0,100), a: clamp(+el('labAN').value,-150,150), b: clamp(+el('labBN').value,-150,150) }; }
-function readLch()  { return { L: clamp(+el('lchLN').value,0,100), C: clamp(+el('lchCN').value,0,150), h: clamp(+el('lchHN').value,0,360) }; }
-function readRgb()  { return { R: clamp(+el('rgbRN').value,0,255)|0, G: clamp(+el('rgbGN').value,0,255)|0, B: clamp(+el('rgbBN').value,0,255)|0 }; }
-
-function fromLab()  { if (busy) return; busy=true; const v=readLab();  applyLab(v.L,v.a,v.b);                               busy=false; }
+function fromLab()  { if (busy) return; busy=true; const v=readLab();  applyLab(v.L,v.a,v.b);                                busy=false; }
 function fromLch()  { if (busy) return; busy=true; const v=readLch();  const lab=lchToLab(v.L,v.C,v.h); applyLab(lab.L,lab.a,lab.b); busy=false; }
 function fromRgb()  { if (busy) return; busy=true; const v=readRgb();  const lab=rgbToLab(v.R,v.G,v.B); applyLab(lab.L,lab.a,lab.b); busy=false; }
 function fromHex()  {
@@ -844,29 +1311,94 @@ function fromHex()  {
   busy = false;
 }
 
-/* ── 이벤트 연결 ── */
+/* ── 이벤트: 오른쪽 계산기 ── */
 function bind(sliderId, numId, onChange) {
   el(sliderId).addEventListener('input', e => { el(numId).value = e.target.value; onChange(); });
-  el(numId).addEventListener('input', e => { el(sliderId).value = e.target.value; onChange(); });
+  el(numId).addEventListener('input',   e => { el(sliderId).value = e.target.value; onChange(); });
 }
 
 bind('labLS','labLN', fromLab); bind('labAS','labAN', fromLab); bind('labBS','labBN', fromLab);
 bind('lchLS','lchLN', fromLch); bind('lchCS','lchCN', fromLch); bind('lchHS','lchHN', fromLch);
 bind('rgbRS','rgbRN', fromRgb); bind('rgbGS','rgbGN', fromRgb); bind('rgbBS','rgbBN', fromRgb);
-
 el('hexIn').addEventListener('input', fromHex);
 
-/* 복사 버튼 */
+/* ── 이벤트: 왼쪽 L* 수직 슬라이더 ── */
+el('lSliderVis').addEventListener('input', () => {
+  if (busy) return;
+  const L = +el('lSliderVis').value;
+  const cur = readLab();
+  busy = true;
+  applyLab(L, cur.a, cur.b);
+  busy = false;
+});
+
+/* ── 이벤트: 캔버스 드래그 ── */
+function canvasPointerToLab(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = CSIZE / rect.width;
+  const scaleY = CSIZE / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top)  * scaleY;
+  const a = clamp((px / (CSIZE - 1)) * 2 * ABRANGE - ABRANGE, -ABRANGE, ABRANGE);
+  const b = clamp(ABRANGE - (py / (CSIZE - 1)) * 2 * ABRANGE, -ABRANGE, ABRANGE);
+  return { a, b };
+}
+
+let dragging = false;
+
+canvas.addEventListener('pointerdown', e => {
+  dragging = true;
+  canvas.setPointerCapture(e.pointerId);
+  const { a, b } = canvasPointerToLab(e);
+  const L = +el('lSliderVis').value;
+  if (!busy) { busy = true; applyLab(L, a, b); busy = false; }
+});
+canvas.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const { a, b } = canvasPointerToLab(e);
+  const L = +el('lSliderVis').value;
+  if (!busy) { busy = true; applyLab(L, a, b); busy = false; }
+});
+canvas.addEventListener('pointerup',   () => { dragging = false; });
+canvas.addEventListener('pointercancel', () => { dragging = false; });
+
+/* ── 이벤트: 파이프라인 아코디언 ── */
+document.querySelectorAll('.pipe-node-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const step = btn.dataset.step;
+    const acc  = el('pipeAcc-' + step);
+    const open = acc.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    /* 열린 노드의 btn 모서리를 납작하게 */
+    btn.style.borderBottomLeftRadius  = open ? '0' : '';
+    btn.style.borderBottomRightRadius = open ? '0' : '';
+  });
+});
+
+/* ── 복사 버튼 ── */
 el('copyBtn').addEventListener('click', () => {
   const hex = el('hexBig').textContent;
   const btn = el('copyBtn');
-  const done = () => { btn.textContent = '복사 완료!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'HEX 복사'; btn.classList.remove('copied'); }, 1500); };
+  const done = () => {
+    btn.textContent = '복사 완료!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'HEX 복사'; btn.classList.remove('copied'); }, 1500);
+  };
   if (navigator.clipboard) {
     navigator.clipboard.writeText(hex).then(done);
   } else {
     const ta = Object.assign(document.createElement('textarea'), { value: hex });
     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done();
   }
+});
+
+/* ── 수식 토글 ── */
+el('formulaToggle').addEventListener('click', () => {
+  const btn  = el('formulaToggle');
+  const body = el('formulaBody');
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
 });
 
 /* ── 프리셋 ── */
@@ -883,7 +1415,7 @@ const PRESETS = [
 
 const presetsEl = document.querySelector('.presets');
 PRESETS.forEach(p => {
-  const rgb = labToRgb(p.L, p.a, p.b);
+  const rgb  = labToRgb(p.L, p.a, p.b);
   const chip = document.createElement('button');
   chip.className = 'preset-chip';
   chip.innerHTML = `<span class="preset-dot" style="background:rgb(${rgb.R},${rgb.G},${rgb.B})"></span>${p.name}`;
@@ -891,17 +1423,215 @@ PRESETS.forEach(p => {
   presetsEl.appendChild(chip);
 });
 
-/* ── 수식 토글 ── */
-el('formulaToggle').addEventListener('click', () => {
-  const btn  = el('formulaToggle');
-  const body = el('formulaBody');
-  const open = body.classList.toggle('open');
-  btn.classList.toggle('open', open);
-  btn.setAttribute('aria-expanded', open);
+/* ── 초기화 ── */
+fromRgb();
+
+
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ── 색역 표면 포인트 생성 (RGB 큐브 6면 샘플) ── */
+function buildGamutPts(N = 15) {
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const u = Math.round(i / (N-1) * 255);
+      const v = Math.round(j / (N-1) * 255);
+      [[0,u,v],[255,u,v],[u,0,v],[u,255,v],[u,v,0],[u,v,255]].forEach(([R,G,B]) => {
+        const lab = window.rgbToLab(R, G, B);
+        const lch = window.labToLch(lab.L, lab.a, lab.b);
+        pts.push({ R, G, B, L: lab.L, a: lab.a, b: lab.b, C: lch.C, h: lch.h });
+      });
+    }
+  }
+  return pts;
+}
+
+/* ── 좌표계 변환 ── */
+const COORD = {
+  rgb: p => ({ x: p.R/127.5-1, y: p.G/127.5-1, z: p.B/127.5-1 }),
+  lab: p => ({ x: p.a/128,     y: p.L/50-1,    z: p.b/128     }),
+  lch: p => {
+    const hr = p.h * Math.PI / 180;
+    return { x: p.C*Math.cos(hr)/128, y: p.L/50-1, z: p.C*Math.sin(hr)/128 };
+  },
+};
+
+/* ── 캔버스 텍스처 텍스트 스프라이트 ── */
+function makeLabel(text, color = '#64748b') {
+  const c = document.createElement('canvas');
+  c.width = 200; c.height = 50;
+  const ctx = c.getContext('2d');
+  ctx.font = 'bold 24px sans-serif';
+  ctx.fillStyle = color;
+  ctx.fillText(text, 4, 34);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+  const s = new THREE.Sprite(mat);
+  s.scale.set(0.42, 0.12, 1);
+  return s;
+}
+
+/* ── 축 선분 ── */
+function addLine(scene, from, to, color, opacity = 0.55) {
+  const geo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(...from), new THREE.Vector3(...to)
+  ]);
+  const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+  scene.add(new THREE.Line(geo, mat));
+}
+
+/* ── 수평 원 (LCH 실린더 가이드) ── */
+function addRing(scene, y, r = 1, segs = 80) {
+  const pts = [];
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * Math.PI * 2;
+    pts.push(new THREE.Vector3(Math.cos(a)*r, y, Math.sin(a)*r));
+  }
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.1 });
+  scene.add(new THREE.Line(geo, mat));
+}
+
+/* ── 씬 생성 공통 로직 ── */
+const gamutPts = buildGamutPts();
+const scenes = {};
+
+function makeScene(key, coordFn, setupFn) {
+  const canvas = document.getElementById(key + 'Canvas');
+  const W = canvas.width, H = canvas.height;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0xf8fafc);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(48, W / H, 0.01, 100);
+  camera.position.set(1.9, 1.4, 2.3);
+
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.07;
+  controls.minDistance = 0.8;
+  controls.maxDistance = 8;
+
+  /* 포인트 클라우드 */
+  const n = gamutPts.length;
+  const pos = new Float32Array(n * 3);
+  const col = new Float32Array(n * 3);
+  gamutPts.forEach((p, i) => {
+    const { x, y, z } = coordFn(p);
+    pos[i*3]=x; pos[i*3+1]=y; pos[i*3+2]=z;
+    col[i*3]=p.R/255; col[i*3+1]=p.G/255; col[i*3+2]=p.B/255;
+  });
+  const ptGeo = new THREE.BufferGeometry();
+  ptGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  ptGeo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+  const ptMat = new THREE.PointsMaterial({ size: 0.048, vertexColors: true, sizeAttenuation: true });
+  scene.add(new THREE.Points(ptGeo, ptMat));
+
+  /* 현재 색상 마커 (흰 외곽 + 실제 색) */
+  function mkMarkerPt(size, col) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
+    const m = new THREE.PointsMaterial({ size, color: col, sizeAttenuation: true, depthTest: false });
+    const p = new THREE.Points(g, m);
+    scene.add(p);
+    return p;
+  }
+  const outerPt = mkMarkerPt(0.14, 0xffffff);
+  const innerPt = mkMarkerPt(0.09, 0x808080);
+
+  setupFn(scene);
+
+  scenes[key] = { renderer, scene, camera, controls, outerPt, innerPt, coordFn };
+}
+
+/* ── RGB 큐브 씬 ── */
+makeScene('rgb', COORD.rgb, scene => {
+  const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(2, 2, 2));
+  scene.add(new THREE.LineSegments(edges,
+    new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.13 })));
+
+  const lR = makeLabel('R', '#dc2626'); lR.position.set( 1.3, -1.05, -1.05); scene.add(lR);
+  const lG = makeLabel('G', '#16a34a'); lG.position.set(-1.05,  1.3, -1.05); scene.add(lG);
+  const lB = makeLabel('B', '#2563eb'); lB.position.set(-1.05, -1.05,  1.3); scene.add(lB);
 });
 
-/* ── 초기화 ── */
-fromRgb(); // RGB 128,128,128 기준으로 시작
+/* ── LAB 씬 ── */
+makeScene('lab', COORD.lab, scene => {
+  addLine(scene, [-1.2,0,0], [1.2,0,0], 0xdc2626);
+  addLine(scene, [0,-1.2,0], [0,1.2,0], 0x888888);
+  addLine(scene, [0,0,-1.2], [0,0,1.2], 0xca8a04);
+
+  const la  = makeLabel('+a*', '#dc2626'); la.position.set( 1.35,0,0); scene.add(la);
+  const lan = makeLabel('−a*', '#16a34a'); lan.position.set(-1.45,0,0); scene.add(lan);
+  const lL  = makeLabel('L*',  '#64748b'); lL.position.set(0, 1.28,0); scene.add(lL);
+  const lb  = makeLabel('+b*', '#ca8a04'); lb.position.set(0,0, 1.35); scene.add(lb);
+  const lbn = makeLabel('−b*', '#2563eb'); lbn.position.set(0,0,-1.45); scene.add(lbn);
+});
+
+/* ── LCH 씬 ── */
+makeScene('lch', COORD.lch, scene => {
+  addRing(scene, -1); addRing(scene, 0); addRing(scene, 1);
+  for (const deg of [0, 90, 180, 270]) {
+    const hr = deg * Math.PI / 180;
+    const px = Math.cos(hr), pz = Math.sin(hr);
+    addLine(scene, [px,-1,pz], [px,1,pz], 0x000000, 0.1);
+  }
+  addLine(scene, [0,-1.2,0], [0,1.2,0], 0x888888);
+  const lL = makeLabel('L*', '#64748b'); lL.position.set(0,1.3,0); scene.add(lL);
+
+  [[0,'+a*(R)','#dc2626'],[90,'+b*(Y)','#ca8a04'],[180,'−a*(G)','#16a34a'],[270,'−b*(B)','#2563eb']]
+  .forEach(([deg, text, col]) => {
+    const hr = deg * Math.PI / 180;
+    const lbl = makeLabel(text, col);
+    lbl.position.set(Math.cos(hr)*1.32, 0, Math.sin(hr)*1.32);
+    scene.add(lbl);
+  });
+});
+
+/* ── 마커 위치/색상 갱신 ── */
+function setMarker(key, x, y, z, R, G, B) {
+  const s = scenes[key];
+  [s.outerPt, s.innerPt].forEach(pt => {
+    const arr = pt.geometry.attributes.position.array;
+    arr[0]=x; arr[1]=y; arr[2]=z;
+    pt.geometry.attributes.position.needsUpdate = true;
+  });
+  s.innerPt.material.color.setRGB(R/255, G/255, B/255);
+}
+
+window.update3DThree = () => {
+  const { L, a, b } = window.CUR3;
+  const rgb = window.labToRgb(L, a, b);
+  const lch = window.labToLch(L, a, b);
+
+  const rc = COORD.rgb({ R: rgb.R, G: rgb.G, B: rgb.B });
+  setMarker('rgb', rc.x, rc.y, rc.z, rgb.R, rgb.G, rgb.B);
+
+  const lc = COORD.lab({ L, a, b });
+  setMarker('lab', lc.x, lc.y, lc.z, rgb.R, rgb.G, rgb.B);
+
+  const hr = lch.h * Math.PI / 180;
+  const cc = { x: lch.C*Math.cos(hr)/128, y: L/50-1, z: lch.C*Math.sin(hr)/128 };
+  setMarker('lch', cc.x, cc.y, cc.z, rgb.R, rgb.G, rgb.B);
+};
+
+window.update3DThree();
+
+/* ── 렌더 루프 ── */
+function animate() {
+  requestAnimationFrame(animate);
+  for (const key of ['rgb','lab','lch']) {
+    scenes[key].controls.update();
+    scenes[key].renderer.render(scenes[key].scene, scenes[key].camera);
+  }
+}
+animate();
 </script>
 </body>
 </html>
