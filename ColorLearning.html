@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색상 · 명도 · 채도 학습</title>
+<style>
+@import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'NanumSquare', sans-serif;
+  background: #e8ecf8;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.panel {
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.swatch {
+  width: clamp(180px, 42vw, 280px);
+  height: clamp(180px, 42vw, 280px);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(30, 50, 150, 0.18);
+  transition: background-color .15s ease;
+}
+
+.desc {
+  margin-top: 24px;
+  font-size: 19px;
+  color: #1a1a2e;
+  line-height: 1.85;
+}
+
+.desc b { font-weight: 800; }
+
+.controls {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.control-row { text-align: left; }
+
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3B5BDB;
+  margin-bottom: 8px;
+}
+
+.control-label span:last-child { color: #1a1a2e; font-weight: 800; }
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #3B5BDB;
+}
+
+input[type="range"]:disabled {
+  opacity: 0.4;
+}
+
+.vertical-controls {
+  display: flex;
+  justify-content: center;
+  gap: 56px;
+}
+
+.control-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.control-col .control-label {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 0;
+}
+
+.control-col .control-label span:first-child { color: #3B5BDB; }
+
+.vslider-wrap {
+  height: 150px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vslider-wrap input[type="range"] {
+  width: 150px;
+  transform: rotate(90deg);
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="swatch" id="swatch"></div>
+  <div class="desc" id="desc"></div>
+
+  <div class="controls">
+    <div class="control-row">
+      <div class="control-label"><span>1. 색상</span><span id="hueValue"></span></div>
+      <input type="range" id="hueSlider" min="0" max="6" step="1" value="0" list="hueTicks">
+      <datalist id="hueTicks">
+        <option value="0"></option><option value="1"></option><option value="2"></option>
+        <option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option>
+      </datalist>
+    </div>
+
+    <div class="vertical-controls">
+      <div class="control-col">
+        <div class="control-label"><span>2. 명도</span><span id="valValue"></span></div>
+        <div class="vslider-wrap">
+          <input type="range" id="valSlider" min="0" max="2" step="1" value="0" list="valTicks">
+        </div>
+        <datalist id="valTicks">
+          <option value="0"></option><option value="1"></option><option value="2"></option>
+        </datalist>
+      </div>
+
+      <div class="control-col">
+        <div class="control-label"><span>3. 채도</span><span id="satValue"></span></div>
+        <div class="vslider-wrap">
+          <input type="range" id="satSlider" min="0" max="3" step="1" value="0" list="satTicks">
+        </div>
+        <datalist id="satTicks">
+          <option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option>
+        </datalist>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HUES = [
+  { name: '빨강', h: 0 },
+  { name: '주황', h: 30 },
+  { name: '노랑', h: 60 },
+  { name: '초록', h: 120 },
+  { name: '파랑', h: 240 },
+  { name: '보라', h: 300 },
+  { name: '없음', h: 0 },
+];
+const VALUES = [
+  { label: '높다', v: 100 },
+  { label: '중간이다', v: 65 },
+  { label: '낮다', v: 35 },
+];
+const SATS = [
+  { label: '높다', s: 100 },
+  { label: '중간이다', s: 60 },
+  { label: '낮다', s: 30 },
+  { label: '없다', s: 0 },
+];
+
+function hsvToRgb(h, s, v) {
+  s /= 100; v /= 100;
+  const c = v * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = v - c;
+  let [r, g, b] = h < 60 ? [c, x, 0]
+    : h < 120 ? [x, c, 0]
+    : h < 180 ? [0, c, x]
+    : h < 240 ? [0, x, c]
+    : h < 300 ? [x, 0, c]
+    : [c, 0, x];
+  return [r + m, g + m, b + m].map(n => Math.round(n * 255));
+}
+
+const swatchEl = document.getElementById('swatch');
+const descEl = document.getElementById('desc');
+const hueSlider = document.getElementById('hueSlider');
+const valSlider = document.getElementById('valSlider');
+const satSlider = document.getElementById('satSlider');
+const hueValueEl = document.getElementById('hueValue');
+const valValueEl = document.getElementById('valValue');
+const satValueEl = document.getElementById('satValue');
+
+function render() {
+  const isHueNone = Number(hueSlider.value) === HUES.length - 1;
+  if (isHueNone) {
+    satSlider.value = 3;
+  }
+  satSlider.disabled = isHueNone;
+
+  const hue = HUES[hueSlider.value];
+  const val = VALUES[valSlider.value];
+  const sat = SATS[satSlider.value];
+  const noColor = sat.s === 0;
+
+  const [r, g, b] = hsvToRgb(hue.h, sat.s, val.v);
+  swatchEl.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+  hueValueEl.textContent = noColor ? '없음' : hue.name;
+  valValueEl.textContent = val.label;
+  satValueEl.textContent = sat.label;
+
+  const hueSentence = noColor ? '색상이 없다.' : `색상은 '<b>${hue.name}</b>'이다.`;
+  descEl.innerHTML = `${hueSentence}<br>명도가 <b>${val.label}</b>.<br>채도가 <b>${sat.label}</b>.`;
+}
+
+[hueSlider, valSlider, satSlider].forEach(el => el.addEventListener('input', render));
+render();
+</script>
+
+</body>
+</html>

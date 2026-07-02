@@ -1,143 +1,207 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presentation Hub — YnSoyn</title>
+<title>Presentation Hub — 윤소연</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
-
-@font-face {
-  font-family: 'JeongsinCharyeot';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-01@1.0/EF_WAKEUP.woff2') format('woff2');
-  font-weight: normal;
-  font-display: swap;
-}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'NanumSquare', sans-serif;
-  background: #e8ecf8;
-  height: 100vh;
+  font-family: 'NanumSquare', 'Inter', sans-serif;
+  background-color: #f8f6f1;
+  background-image:
+    linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  position: relative;
 }
 
-.blob { position: fixed; border-radius: 50%; filter: blur(72px); opacity: 0.48; z-index: 0; pointer-events: none; }
-.blob-tl { width: 400px; height: 400px; background: radial-gradient(circle, #6b8dff 0%, #2f4cdd 100%); top: -150px; left: -100px; }
-.blob-br { width: 350px; height: 350px; background: radial-gradient(circle, #5577ff 0%, #1e38cc 100%); bottom: -100px; right: -50px; }
+.hub {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
 
-.hub-container {
-  position: relative; z-index: 1;
-  width: 90%; max-width: 800px;
-  text-align: center;
+.hub-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: #8a8a8a;
+  letter-spacing: .03em;
+}
+
+.hub-top .n { font-variant-numeric: tabular-nums; }
+
+.logo-mark {
+  width: 56px;
+  height: 56px;
+  margin-top: 22px;
+  border-radius: 14px;
+  background: #0a0a0a;
+  color: #d4ff3d;
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 h1 {
-  font-family: 'JeongsinCharyeot', sans-serif;
-  font-size: 60px;
-  color: #1a1a2e;
-  margin-bottom: 40px;
-  letter-spacing: 1px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: clamp(30px, 6vw, 46px);
+  line-height: 1.15;
+  margin-top: 18px;
+  letter-spacing: -.01em;
 }
 
-.ppt-list {
+h1 .line1 { color: #1a1a2e; display: block; }
+h1 .line2 { color: #9a9aa5; display: block; }
+
+.grid {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 16px 10px;
+}
+
+.card {
+  position: relative;
+  text-decoration: none;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
-.ppt-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(59, 91, 219, 0.1);
-  border-radius: 20px;
-  padding: 30px;
+.card-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 14px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  text-decoration: none;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
-  box-shadow: 0 10px 30px rgba(30, 50, 150, 0.08);
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 6px 16px rgba(30, 40, 90, 0.15);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
 }
 
-.ppt-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(59, 91, 219, 0.15);
-  background: #fff;
+.card:hover .card-icon {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(30, 40, 90, 0.22);
 }
 
-.ppt-info { text-align: left; }
-.ppt-tag {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #eef1fc;
-  color: #3B5BDB;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.ppt-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin-bottom: 4px;
-}
-.ppt-desc { font-size: 14px; color: #777; }
+.card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; text-align: center; }
 
-.arrow-icon {
-  width: 50px; height: 50px;
-  background: linear-gradient(135deg, #4B6BFF 0%, #2236CC 100%);
+.card-tag {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  width: 190px;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+  padding: 6px 8px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+  z-index: 10;
+}
+
+.card:hover .card-tag { opacity: 1; }
+
+.card.upcoming { opacity: .45; pointer-events: none; }
+.card.upcoming .card-icon { background: transparent; border: 1.5px dashed rgba(0,0,0,.25); box-shadow: none; }
+
+.hub-footer {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 24px;
-  box-shadow: 0 4px 12px rgba(59, 91, 219, 0.3);
+  background: #0a0a0a;
+  color: #d4ff3d;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.footer-info .name { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.footer-info .sub { font-size: 11px; color: #9a9aa5; }
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(5, 1fr); }
 }
 </style>
 </head>
 <body>
 
-<div class="blob blob-tl"></div>
-<div class="blob blob-br"></div>
+<div class="hub">
+  <div class="hub-top">
+    <span>PRESENTATION HUB</span>
+    <span class="n">03</span>
+  </div>
 
-<div class="hub-container">
-  <h1>Presentation Hub</h1>
-  
-  <div class="ppt-list">
-    <!-- Moving XR Space 발표자료 -->
-    <a href="movingXRspace_FinalPPT_2026-1_Class-DigitalMediaStudy.html" class="ppt-card">
-      <div class="ppt-info">
-        <div class="ppt-tag">2026-1 DIGITAL MEDIA STUDY</div>
-        <div class="ppt-title">Moving XR Space</div>
-        <div class="ppt-desc">멀미 저감 시각 모션큐 시스템 설계 및 Unity 시뮬레이션</div>
-      </div>
-      <div class="arrow-icon">→</div>
+  <div class="logo-mark">Y</div>
+
+  <h1><span class="line1">Projects</span><span class="line2">... Tools</span></h1>
+
+  <div class="grid">
+    <a href="movingXRspace_FinalPPT_2026-1_Class-DigitalMediaStudy.html" class="card">
+      <div class="card-icon" style="background: linear-gradient(135deg, #d9e0ff 0%, #b6c3ff 100%);">🚌</div>
+      <div class="card-title">Moving XR Space</div>
+      <div class="card-tag">Present · 2026-1 디지털 미디어 연구 (기말)</div>
     </a>
 
-    <!-- 색상 계산기 -->
-    <a href="ColorCalculator.html" class="ppt-card">
-      <div class="ppt-info">
-        <div class="ppt-tag">TOOL</div>
-        <div class="ppt-title">Color Calculator</div>
-        <div class="ppt-desc">L*a*b* · L*C*h° · sRGB 색상 변환기</div>
-      </div>
-      <div class="arrow-icon">→</div>
+    <a href="ColorCalculator.html" class="card">
+      <div class="card-icon" style="background: linear-gradient(135deg, #ffe3d0 0%, #ffc7a6 100%);">🎨</div>
+      <div class="card-title">Color Calculator</div>
+      <div class="card-tag">TOOL · 2026-1 심화연구프로젝트(설계용)</div>
     </a>
 
-    <!-- 추후 추가될 발표자료 자리 (Placeholder) -->
-    <div style="opacity: 0.4; pointer-events: none;">
-      <div class="ppt-card" style="background: rgba(255,255,255,0.5); border-style: dashed;">
-        <div class="ppt-info">
-          <div class="ppt-tag">UPCOMING</div>
-          <div class="ppt-title">Next Presentation</div>
-          <div class="ppt-desc">준비 중인 발표 자료입니다.</div>
-        </div>
-      </div>
+    <a href="ColorLearning.html" class="card">
+      <div class="card-icon" style="background: linear-gradient(135deg, #d8f5e3 0%, #b0e8c9 100%);">🌈</div>
+      <div class="card-title">Color Learning</div>
+      <div class="card-tag">TOOL · 2026-1 심화연구프로젝트(실험용)</div>
+    </a>
+
+    <div class="card upcoming">
+      <div class="card-icon">+</div>
+      <div class="card-title">Next Project</div>
+      <div class="card-tag">UPCOMING</div>
+    </div>
+  </div>
+
+  <div class="hub-footer">
+    <div class="avatar">Y</div>
+    <div class="footer-info">
+      <div class="name">윤소연</div>
+      <div class="sub">Kyung Hee University</div>
     </div>
   </div>
 </div>
